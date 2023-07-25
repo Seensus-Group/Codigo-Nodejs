@@ -46,7 +46,7 @@ con.connect((erro) => {
 /*
    ------------- LOJAS -----------------
 */
-//Rota para registrar novas lojas
+//Rota para inserir novas lojas
 app.post("/store/insert", (req, res) => {
     //Criptografia da senha
     let sh = req.body.senha;
@@ -64,7 +64,7 @@ app.post("/store/insert", (req, res) => {
     });
 });
 
-//Rota para atualizar dados do usuario (Senha, Email)
+//Rota para atualizar dados da loja (Senha, Email)
 app.put("/store/update/:id", (req, res) => {
     let sh = req.body.senha;
     bcrypt.hash(sh, salt, (error, result) => {
@@ -81,28 +81,42 @@ app.put("/store/update/:id", (req, res) => {
 });
 
 //Rota para realizar login
-app.post("/user/login", (req, res) => {
+app.post("/store/login", (req, res) => {
     con.query("SELECT * FROM loja WHERE email=?", [req.body.email], (error, result) => {
         if (!error) {
+            if (!result || result == "" || result == null) {
+             return res.status(400).send({ output: `Username or Password incorrect` });
+            }
             bcrypt.compare(req.body.senha, result[0].senha, (err, equals) => {
                 if (equals) {
-                    const token = criarToken(result[0].idloja, result[0].email, result[0].nome);
-                    return res.status(200).send({ output: `Authenticated`, token: token});
+                    const token = criarToken(result[0].idusuario, result[0].nomeusuario, result[0].email);
+                    return res.status(200).send({ output: `Authenticated`, token: token });
                 }
                 else {
-                    return res.status(400).send({ output: `Username or password incorrect` });
+                    return res.status(400).send({ output: `Username or Password incorrect` });
                 }
             })
         }
         else if (!result) {
-            return res.status(400).send({ output: `Username or password incorrect`});
+            return res.status(400).send({ output: `Username or Password incorrect` });
         }
         else {
-            return res.status(500).send({ output: `Unexpected internal error in password`});
+            return res.status(500).send({ output: `Unexpected internal error in password`, erro: error });
         }
-    });
-});
+    })
+})
 
+/*
+   ------------- Avaliações -----------------
+*/
+//Rota para inserir novcas avaliações
+app.post("/avaliacoes/insert", (req, res) => {
+    con.query("INSERT INTO avaliacao SET ?", [req.body], (error, result) => {
+        if (!error)
+            return res.status(200).send({ output: `Inserted`, data: result})
+        else return res.status(500).send({ output: `Internal error during request process`, erro: error})
+    })
+})
 /*
    ------------- ROTAS DE LISTAGEM E CONSULTA -----------------
 */
