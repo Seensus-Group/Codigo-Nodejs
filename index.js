@@ -130,6 +130,14 @@ app.get("/store/listbyname/:busca", (req, res) => {
         else return res.status(500).send({ output: `Internal error during request process`, erro: error });
     });
 });
+app.get("/store/listbyid/:id", (req, res) => {
+    let consulta = req.params.id
+    con.query("SELECT * FROM loja WHERE idloja LIKE ?", [`${consulta}`], (error, result) => {
+        if (!error)
+            return res.status(200).send({ output: `Ok`, data: result });
+        else return res.status(500).send({ output: `Internal error during request process`, erro: error });
+    });
+});
 
 
 
