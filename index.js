@@ -84,6 +84,7 @@ app.put("/store/update/:id", (req, res) => {
 app.post("/store/login", (req, res) => {
     con.query("SELECT * FROM loja WHERE email=?", [req.body.email], (error, result) => {
         if (!error) {
+            if(!result || result==  "" ||result==null) return res.status(400).send({output:`Usuário ou senha incorretos`})
             bcrypt.compare(req.body.senha, result[0].senha, (err, equals) => {
                 if (equals) {
                     const token = criarToken(result[0].idloja, result[0].email, result[0].nome);
