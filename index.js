@@ -87,8 +87,9 @@ app.post("/store/login", (req, res) => {
             if(!result || result==  "" ||result==null) return res.status(400).send({output:`Usuário ou senha incorretos`})
             bcrypt.compare(req.body.senha, result[0].senha, (err, equals) => {
                 if (equals) {
+                    const id = result[0].idloja;
                     const token = criarToken(result[0].idloja, result[0].email, result[0].nome);
-                    return res.status(200).send({ output: `Authenticated`, token: token});
+                    return res.status(200).send({ output: `Authenticated`, token: token, id: id});
                 }
                 else {
                     return res.status(400).send({ output: `Username or password incorrect` });
